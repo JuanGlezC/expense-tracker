@@ -1,7 +1,7 @@
 from storage import guardar_transacciones, cargar_transacciones
-from models import validar_transaccion, agrupar_totales_por_categoria, CategoriaInvalidaError
+from models import validar_transaccion, CategoriaInvalidaError, filtrar_por_categoria, FechaInvalidaError
 from pathlib import Path
-
+from datetime import datetime
 
 ruta: Path = Path("transacciones.json")
 transacciones_actuales:list[dict] = cargar_transacciones(ruta)
@@ -19,28 +19,30 @@ for transaccion in transacciones_actuales:
         print(f"Error de formato: {error}")
     except CategoriaInvalidaError as error:
         print(f"Error de negocio: {error}")
+    except FechaInvalidaError as error:
+        print(f"Error de fecha: {error}")
     finally:
         print(f"Validación de '{transaccion.get('categoria')}' finalizada")
 
 
 
 
-transacciones_validadas.append({"categoria": "Ocio", "importe": 20.0})
+#transacciones_validadas.append({"categoria": "Ocio", "importe": 20.0})
 guardar_transacciones(transacciones_validadas, ruta)
 
 
 transacciones_verificadas:list[dict] = cargar_transacciones(ruta)
 print(transacciones_verificadas)
-
-transacciones_agrupadas:dict=agrupar_totales_por_categoria(transacciones_verificadas)
-
-
-
-def mostrar_totales(transacciones_agrupadas):
-    for clave,valor in transacciones_agrupadas.items():
-
-        print(f"El valor total de la categoria {clave} es {valor:.2f}")
+categoria="Ocio"
+transacciones_agrupadas:list[dict]=filtrar_por_categoria(transacciones_verificadas,categoria)
 
 
 
-mostrar_totales(transacciones_agrupadas)
+def mostrar_transacciones(transacciones_agrupadas):
+    for elemento in transacciones_agrupadas:
+
+        print(elemento)
+
+
+
+mostrar_transacciones(transacciones_agrupadas)
