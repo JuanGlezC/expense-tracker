@@ -1,8 +1,23 @@
+
+from datetime import datetime
+
 class CategoriaInvalidaError(Exception):
     pass
 
+class FechaInvalidaError(Exception):
+     pass
+
 def validar_transaccion(transaccion):
 
+    if "fecha" not in transaccion:
+        raise FechaInvalidaError(f"La clave fecha no existe en la transaccion: {transaccion}")
+    try:
+            texto_fecha=str(transaccion["fecha"])
+            datetime.strptime(texto_fecha, "%Y-%m-%d")
+    except ValueError:
+        raise FechaInvalidaError(f"La fecha no tiene un formato valido en: {transaccion}")
+                 
+    
     if "importe" not in transaccion:
         raise KeyError(f"Falta la clave 'importe' en la transaccion: {transaccion}")
 
@@ -11,6 +26,7 @@ def validar_transaccion(transaccion):
         transaccion["importe"]=importe
     except ValueError:
         raise ValueError(f"El importe no es un número válido: {transaccion['importe']}")
+    
 
     if not isinstance(transaccion.get("categoria"), str):
         raise CategoriaInvalidaError(f"Categoria invalida en: {transaccion}")
@@ -19,18 +35,18 @@ def validar_transaccion(transaccion):
 
 
 
-def agrupar_totales_por_categoria(lista_transacciones):
 
-    totales={}
-    for elemento in lista_transacciones:
-        if elemento["categoria"] not in totales:
-            totales[elemento["categoria"]]=elemento["importe"]
+def filtrar_por_categoria(lista_transacciones:list[dict],categoria: str)->list[dict]:
 
-        else:
-            totales[elemento["categoria"]]+= elemento["importe"]
+    lista_categoria: list[dict]=[elemento for elemento in lista_transacciones if elemento["categoria"]==categoria]
 
-    return totales
+    return lista_categoria
 
+def filtrar_por_fecha(lista_transacciones:list[dict], fecha: str)->list[dict]:
+
+    lista_fechas: list[dict]=[elemento for elemento in lista_transacciones if elemento["fecha"]==fecha]
+
+    return lista_fechas
 
 
 
