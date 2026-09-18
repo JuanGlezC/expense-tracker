@@ -13,6 +13,10 @@ class Gasto:
     def __post_init__(self):
         if not isinstance(self.categoria, str):
             raise CategoriaInvalidaError(f"La categoría debe ser texto: {self.categoria}")
+        if self.categoria.isdigit():
+            
+            raise CategoriaInvalidaError(f"La categoria no puede estar compuesta solo por numeros: {self.categoria}")
+            
 
         try:
             importe = float(self.importe)
