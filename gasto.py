@@ -30,3 +30,16 @@ class Gasto:
             datetime.strptime(self.fecha, "%Y-%m-%d")
         except ValueError:
             raise FechaInvalidaError(f"Formato de fecha inválido: {self.fecha}")
+
+
+def filtrar_por_categoria(gastos:list[Gasto],categoria: str)->list[Gasto]:
+
+    lista_gastos: list[Gasto]=[elemento for elemento in gastos if elemento.categoria==categoria]
+
+    return lista_gastos
+
+def filtrar_por_fecha(gastos:list[Gasto], fecha: str)->list[Gasto]:
+
+    lista_gastos: list[Gasto]=[elemento for elemento in gastos if elemento.fecha==fecha]
+
+    return lista_gastos

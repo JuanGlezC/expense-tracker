@@ -1,40 +1,36 @@
-from storage import guardar_transacciones, cargar_transacciones
-from models import validar_transaccion, CategoriaInvalidaError, filtrar_por_categoria, FechaInvalidaError
+from storage import guardar_transacciones,cargar_transacciones,dict_a_gasto,gasto_a_dict
+from gasto import Gasto,filtrar_por_fecha,filtrar_por_categoria
 from pathlib import Path
 from datetime import datetime
+from excepciones import CategoriaInvalidaError,FechaInvalidaError,ImporteInvalidoError,DatosIncompletosError
 
 ruta: Path = Path("transacciones.json")
-transacciones_actuales:list[dict] = cargar_transacciones(ruta)
-# añade una transacción nueva con .append(...)
-
-transacciones_validadas:list=[]
-for transaccion in transacciones_actuales:
+transacciones_actuales:list[dict]= cargar_transacciones(ruta)  # sigue siendo list[dict], porque así viene del JSON
+gastos_validados:list[Gasto] = []
+for transaccion_dict in transacciones_actuales:
     try:
-        validar_transaccion(transaccion)
-        print(f"{transaccion['categoria']}: válido")
-        transacciones_validadas.append(transaccion)
-    except KeyError as error:
-        print(f"Error de datos incompletos: {error}")
-    except ValueError as error:
-        print(f"Error de formato: {error}")
-    except CategoriaInvalidaError as error:
-        print(f"Error de negocio: {error}")
-    except FechaInvalidaError as error:
-        print(f"Error de fecha: {error}")
-    finally:
-        print(f"Validación de '{transaccion.get('categoria')}' finalizada")
+        gasto = dict_a_gasto(transaccion_dict)   # aquí se dispara la validación de __post_init__
+        gastos_validados.append(gasto)
+    except (CategoriaInvalidaError, FechaInvalidaError, ImporteInvalidoError, DatosIncompletosError) as error:
+        print(f"Transacción inválida: {error}")
 
 
+diccionario_validado=[]
+for gasto in gastos_validados:
+    diccionario_validado.append(gasto_a_dict(gasto))
 
-
-#transacciones_validadas.append({"categoria": "Ocio", "importe": 20.0})
-guardar_transacciones(transacciones_validadas, ruta)
+guardar_transacciones(diccionario_validado, ruta)
 
 
 transacciones_verificadas:list[dict] = cargar_transacciones(ruta)
-print(transacciones_verificadas)
-categoria="Ocio"
-transacciones_agrupadas:list[dict]=filtrar_por_categoria(transacciones_verificadas,categoria)
+
+gastos_verificados:list[Gasto]=[]
+for transaccion in transacciones_verificadas:
+    gastos_verificados.append(dict_a_gasto(transaccion))
+
+
+gastos_filtrados:list[Gasto]=filtrar_por_categoria(gastos_verificados,"ocio")
+print(gastos_filtrados)
 
 
 
@@ -42,7 +38,3 @@ def mostrar_transacciones(transacciones_agrupadas):
     for elemento in transacciones_agrupadas:
 
         print(elemento)
-
-
-
-mostrar_transacciones(transacciones_agrupadas)
