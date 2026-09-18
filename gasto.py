@@ -1,5 +1,5 @@
 
-
+from collections import defaultdict
 from datetime import datetime
 from dataclasses import dataclass
 from excepciones import CategoriaInvalidaError,FechaInvalidaError,DatosIncompletosError,ImporteInvalidoError
@@ -43,3 +43,17 @@ def filtrar_por_fecha(gastos:list[Gasto], fecha: str)->list[Gasto]:
     lista_gastos: list[Gasto]=[elemento for elemento in gastos if elemento.fecha==fecha]
 
     return lista_gastos
+
+def total_por_categoria(gastos: list[Gasto]) -> dict[str, float]:
+    totales: defaultdict = defaultdict(float)
+    for gasto in gastos:
+        totales[gasto.categoria] += gasto.importe
+    return dict(totales)
+
+def total_general(gastos: list[Gasto]) -> float:
+    return sum(gasto.importe for gasto in gastos)
+
+def agregar_gasto(gastos: list[Gasto], nuevo_gasto: Gasto) -> list[Gasto]:
+    gastos.append(nuevo_gasto)
+    return gastos
+
