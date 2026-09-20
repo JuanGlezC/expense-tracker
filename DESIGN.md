@@ -8,7 +8,6 @@ y realizar buscas y agrupaciones por importe, fecha y categoría
 -Añadir un gasto (categoría,importe,fecha)
 -Realizar un listado de gastos
 -Filtrado de gastos por categoría
--Filtrado de gastos por fecha
 -Ver gasto total por categoría
 -No tendría sentido en este proyecto hacer un filtrado de gastos por nombre porque pueden ser redundantes y no buscamos de momento un CRUD ni loggins de usuarios, es un proyecto de prueba
 
@@ -22,9 +21,10 @@ Gasto:
   4. Estructura de carpetas y archivos
 
 
--main.py: orquestador de la lógica del proyecto y llamada a métodos
--storage.py: guardado y cargado de datos
--models.py: validacion y filtrado de transacciones, futuramente sera añadido el filtrado por fecha
+-gasto.py— definicion de clase gasto y validacion de datos
+-storage.py— carga y guardado de datos en JSON y transforma de objeto gasto a diccionario y viceversa para futuras cargas y guardados
+-main.py— punto de entrada y manejo del programa mediante CLI argparse
+-excepciones.py— cuerpo de excepciones propias
 -transacciones.json: archivo en el que se irán alojando los gastos en fromato JSON para su uso en la lógica del programa, actua como almacén de persistencia simple
 -READMe.md: Estructura y datos del proyecto
 -requirements.txt: requerimientos de uso de la aplicación y versiones
@@ -38,7 +38,7 @@ python main.py add --categoria Comida --importe 15.50 --fecha 2026-09-14
 python main.py list
 python main.py list --categoria Comida
 python main.py total
-python main.py filtra_fecha --fecha 2026-08-13 
+
 
 6. Decisiones técnicas y por qué
 
@@ -48,4 +48,10 @@ loggins ni cruds no merece la pena estructurar una base de datos cofnigurada par
 7. Fuera de alcance 
 
 Esta versión no va a modificar ni borrar datos
+8. Validacion
+
+Todo el programa hace uso de minusculas y diferencia del uso de mayusculas, por lo que no contempla manejar estas diferencias
+--categoria: str que no sean cadenas unicamente numericas
+--importe: float valido
+--fecha: string que se ajusten al formato de clase datatime
 

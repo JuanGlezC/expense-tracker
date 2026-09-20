@@ -1,10 +1,10 @@
-from storage import guardar_transacciones,cargar_transacciones,dict_a_gasto,gasto_a_dict,cargar_gastos_validados
-from gasto import Gasto,filtrar_por_fecha,filtrar_por_categoria,agregar_gasto,total_general,total_por_categoria
+from storage import guardar_transacciones,gasto_a_dict,cargar_gastos_validados
+from gasto import Gasto,filtrar_por_categoria,agregar_gasto,total_general,total_por_categoria
 from pathlib import Path
-from datetime import datetime
-from excepciones import CategoriaInvalidaError,FechaInvalidaError,ImporteInvalidoError,DatosIncompletosError
+
+from excepciones import CategoriaInvalidaError,FechaInvalidaError,ImporteInvalidoError
 import argparse
-import json
+
 import sys
 
 
