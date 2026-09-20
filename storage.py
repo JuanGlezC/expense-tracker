@@ -3,7 +3,7 @@ from pathlib import Path
 from dataclasses import asdict
 from gasto import Gasto
 from excepciones import DatosIncompletosError,CategoriaInvalidaError,ImporteInvalidoError,FechaInvalidaError
-
+import json
 
 
 def guardar_transacciones(lista_transacciones: list, ruta_archivo: Path)->None:
@@ -12,14 +12,17 @@ def guardar_transacciones(lista_transacciones: list, ruta_archivo: Path)->None:
 
 
 
-def cargar_transacciones(ruta_archivo:Path)->list[dict]:
-    if ruta_archivo.exists():
-        with open(ruta_archivo, "r") as archivo:
-         transacciones_cargadas:list[dict] = json.load(archivo)
-    else:
-       transacciones_cargadas=[]
 
-    return transacciones_cargadas
+
+def cargar_transacciones(ruta_archivo: Path) -> list[dict]:
+    if not ruta_archivo.exists():
+        return []
+    with open(ruta_archivo, "r") as archivo:
+        try:
+            return json.load(archivo)
+        except json.JSONDecodeError as error:
+            print(f"Error: el archivo {ruta_archivo} está corrupto o no es JSON válido: {error}")
+            return []
 
 
 def dict_a_gasto(datos:dict)->Gasto:

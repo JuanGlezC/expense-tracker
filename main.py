@@ -4,7 +4,8 @@ from pathlib import Path
 from datetime import datetime
 from excepciones import CategoriaInvalidaError,FechaInvalidaError,ImporteInvalidoError,DatosIncompletosError
 import argparse
-
+import json
+import sys
 
 
 ruta: Path = Path("transacciones.json")
@@ -38,6 +39,7 @@ if args.comando == "add":
         nuevo = Gasto(categoria=args.categoria, importe=args.importe, fecha=args.fecha)
     except (CategoriaInvalidaError, FechaInvalidaError, ImporteInvalidoError) as error:
         print(f"No se pudo añadir el gasto: {error}")
+        sys.exit(1)
     else:
         gastos = cargar_gastos_validados(ruta)
         gastos = agregar_gasto(gastos, nuevo)
@@ -48,13 +50,19 @@ elif args.comando == "list":
     gastos = cargar_gastos_validados(ruta)
     if args.categoria:
         gastos = filtrar_por_categoria(gastos, args.categoria)
-    for gasto in gastos:
-        print(gasto)
-
+    if not gastos:
+        print("No hay gastos que mostrar.")
+    else:
+        for gasto in gastos:
+            print(gasto)
+            
 elif args.comando == "total":
     gastos = cargar_gastos_validados(ruta)
-    print(f"Total general: {total_general(gastos):.2f}")
-    for categoria, total in total_por_categoria(gastos).items():
-        print(f"  {categoria}: {total:.2f}")
-
+    if not gastos:
+                print("No hay ningun gasto que mostrar")
+    else:
+        print(f"Total general: {total_general(gastos):.2f}")
+        for categoria, total in total_por_categoria(gastos).items():
+            print(f"  {categoria}: {total:.2f}")
+    
 
