@@ -1,10 +1,8 @@
-from storage import guardar_transacciones,gasto_a_dict,cargar_gastos_validados
-from gasto import Gasto,filtrar_por_categoria,agregar_gasto,total_general,total_por_categoria
+from gestor import GestorGastos
+from gasto import Gasto
 from pathlib import Path
-
-from excepciones import CategoriaInvalidaError,FechaInvalidaError,ImporteInvalidoError
+from excepciones import CategoriaInvalidaError, FechaInvalidaError, ImporteInvalidoError
 import argparse
-
 import sys
 
 
@@ -41,28 +39,26 @@ if args.comando == "add":
         print(f"No se pudo añadir el gasto: {error}")
         sys.exit(1)
     else:
-        gastos = cargar_gastos_validados(ruta)
-        gastos = agregar_gasto(gastos, nuevo)
-        guardar_transacciones([gasto_a_dict(g) for g in gastos], ruta)
-        print(f"Gasto añadido: {nuevo}")
-
+        gestor = GestorGastos(ruta)
+        gestor.agregar(nuevo)
+        gestor.guardar()
+        print(f" gasto añadido {nuevo}")
 elif args.comando == "list":
-    gastos = cargar_gastos_validados(ruta)
-    if args.categoria:
-        gastos = filtrar_por_categoria(gastos, args.categoria)
-    if not gastos:
-        print("No hay gastos que mostrar.")
-    else:
-        for gasto in gastos:
-            print(gasto)
+        gestor = GestorGastos(ruta)
+        gastos = gestor.filtrar_por_categoria(args.categoria) if args.categoria else gestor.gastos
+        if not gastos:
+            print("No hay gastos que mostrar.")
+        else:
+            for gasto in gastos:
+                print(gasto)
+        
             
 elif args.comando == "total":
-    gastos = cargar_gastos_validados(ruta)
-    if not gastos:
-                print("No hay ningun gasto que mostrar")
+    gestor = GestorGastos(ruta)
+    if not gestor.gastos:
+        print("No hay ningun gasto que mostrar")
     else:
-        print(f"Total general: {total_general(gastos):.2f}")
-        for categoria, total in total_por_categoria(gastos).items():
+        print(f"Total general: {gestor.total_general():.2f}")
+        for categoria, total in gestor.total_por_categoria().items():
             print(f"  {categoria}: {total:.2f}")
-    
 
