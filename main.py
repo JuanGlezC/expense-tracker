@@ -4,7 +4,13 @@ from pathlib import Path
 from excepciones import CategoriaInvalidaError, FechaInvalidaError, ImporteInvalidoError
 import argparse
 import sys
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 ruta: Path = Path("transacciones.json")
 
@@ -29,20 +35,17 @@ args = parser.parse_args()
 
 
 
-
-
-
 if args.comando == "add":
     try:
         nuevo = Gasto(categoria=args.categoria, importe=args.importe, fecha=args.fecha)
     except (CategoriaInvalidaError, FechaInvalidaError, ImporteInvalidoError) as error:
-        print(f"No se pudo añadir el gasto: {error}")
+        logger.error(f"No se pudo añadir el gasto: {error}")
         sys.exit(1)
     else:
         gestor = GestorGastos(ruta)
         gestor.agregar(nuevo)
         gestor.guardar()
-        print(f" gasto añadido {nuevo}")
+        logger.info(f"Gasto añadido correctamente: {nuevo}")
 elif args.comando == "list":
         gestor = GestorGastos(ruta)
         gastos = gestor.filtrar_por_categoria(args.categoria) if args.categoria else gestor.gastos

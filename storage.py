@@ -3,7 +3,10 @@ from pathlib import Path
 from dataclasses import asdict
 from gasto import Gasto
 from excepciones import DatosIncompletosError,CategoriaInvalidaError,ImporteInvalidoError,FechaInvalidaError
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 
 def guardar_transacciones(lista_transacciones: list[dict], ruta_archivo: Path)->None:
@@ -25,7 +28,7 @@ def cargar_transacciones(ruta_archivo: Path) -> list[dict]:
         try:
             return json.load(archivo)
         except json.JSONDecodeError as error:
-            print(f"Error: el archivo {ruta_archivo} está corrupto o no es JSON válido: {error}")
+            logger.error(f"El archivo esta corrupto o no es un JSON valido {error}")
             return []
 
 
@@ -52,6 +55,8 @@ def gasto_a_dict(gasto:Gasto)->dict:
 
 
 
+
+
 def cargar_gastos_validados(ruta_archivo: Path) -> list[Gasto]:
     """carga los datos del archivo y carga las transacciones realizando una verificacion de que todos los datos se ajustan a la clase Gasto
     y captura las excepciones de datos corruptos"""
@@ -62,6 +67,7 @@ def cargar_gastos_validados(ruta_archivo: Path) -> list[Gasto]:
         try:
             gastos.append(dict_a_gasto(transaccion))
         except (CategoriaInvalidaError, FechaInvalidaError, ImporteInvalidoError, DatosIncompletosError) as error:
-            print(f"Transacción inválida ignorada: {error}")
+                logger.warning(f"Transacción inválida ignorada al cargar: {error}")
+                
     return gastos
 
