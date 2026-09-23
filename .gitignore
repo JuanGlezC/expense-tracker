@@ -1,4 +1,4 @@
-venv/
+.venv/
 __pycache__/
 *.pyc
 comandos_venv_requeriments.txt

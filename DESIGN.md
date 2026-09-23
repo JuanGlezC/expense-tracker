@@ -32,7 +32,6 @@ Gasto:
 
 5. Interfaz de uso (CLI)
 
-Por implementar, diseño pensado:
 
 python main.py add --categoria Comida --importe 15.50 --fecha 2026-09-14
 python main.py list
@@ -50,7 +49,8 @@ loggins ni cruds no merece la pena estructurar una base de datos cofnigurada par
 Esta versión no va a modificar ni borrar datos
 8. Validacion
 
-Todo el programa hace uso de minusculas y diferencia del uso de mayusculas, por lo que no contempla manejar estas diferencias
+"El sistema es sensible a mayúsculas/minúsculas en la categoría ('Comida' y 'comida' se tratan como categorías distintas). Normalizar esto (por ejemplo, forzando minúsculas en __post_init__) queda pendiente como mejora futura."
+
 --categoria: str que no sean cadenas unicamente numericas
 --importe: float valido
 --fecha: string que se ajusten al formato de clase datatime
