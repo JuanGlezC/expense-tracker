@@ -14,13 +14,13 @@ def test_gasto_valido_se_crea_correctamente(gasto_valido):
     assert gasto_valido.importe == 15.5
     assert gasto_valido.fecha == "2026-09-10"
 
-def test_categoria_numerica_lanza_error():
-    with pytest.raises(CategoriaInvalidaError):
-        Gasto(categoria="123", importe=10.0, fecha="2026-09-10")
-def test_fecha_invalida_lanza_error():
-    with pytest.raises(FechaInvalidaError):
-        Gasto(categoria="comida", importe=12.0, fecha="206-09-10")
+    
 
-def test_importe_negativo_lanza_error():
-    with pytest.raises(ImporteInvalidoError):
-        Gasto(categoria="ocio", importe=-2.0, fecha="2026-08-11")
+@pytest.mark.parametrize("categoria,importe,fecha,excepcion_esperada", [
+    ("123", 10.0, "2026-09-10", CategoriaInvalidaError),
+    ("comida", -5.0, "2026-09-10", ImporteInvalidoError),
+    ("comida", 10.0, "fecha-mala", FechaInvalidaError),
+])
+def test_gasto_invalido_lanza_excepcion_correcta(categoria, importe, fecha, excepcion_esperada):
+    with pytest.raises(excepcion_esperada):
+        Gasto(categoria=categoria, importe=importe, fecha=fecha)
