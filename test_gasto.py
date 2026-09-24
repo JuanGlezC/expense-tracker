@@ -20,6 +20,9 @@ def test_gasto_valido_se_crea_correctamente(gasto_valido):
     ("123", 10.0, "2026-09-10", CategoriaInvalidaError),
     ("comida", -5.0, "2026-09-10", ImporteInvalidoError),
     ("comida", 10.0, "fecha-mala", FechaInvalidaError),
+    (1.0, 10.0,"2026-02-11", CategoriaInvalidaError),
+    ("comida","once","2026,04-10", ImporteInvalidoError),
+    ("comida", 6.0, 20260310, FechaInvalidaError)
 ])
 def test_gasto_invalido_lanza_excepcion_correcta(categoria, importe, fecha, excepcion_esperada):
     with pytest.raises(excepcion_esperada):

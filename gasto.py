@@ -65,9 +65,3 @@ def total_general(gastos: list[Gasto]) -> float:
     """devuelve una suma del importe de todas las transacciones de la lista"""
     return sum(gasto.importe for gasto in gastos)
 
-
-def agregar_gasto(gastos: list[Gasto], nuevo_gasto: Gasto) -> list[Gasto]:
-    """agrega un nuevo gasto introducido en el argumento"""
-    gastos.append(nuevo_gasto)
-    return gastos
-

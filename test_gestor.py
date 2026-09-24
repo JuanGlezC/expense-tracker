@@ -34,6 +34,30 @@ def test_filtrar_por_categoria(tmp_path):
     assert len(resultado) == 2  
     assert all(gasto.categoria == "comida" for gasto in resultado)
 
+def test_total_por_categoria(tmp_path):
+
+    ruta= tmp_path / "gastos_test.json"
+    gestor = GestorGastos(ruta)
+
+    gestor.agregar(Gasto(categoria="comida", importe=10.0, fecha="2026-09-10"))
+    gestor.agregar(Gasto(categoria="comida", importe=7.5, fecha="2026-08-11"))
+    gestor.agregar(Gasto(categoria="ocio", importe=12.0, fecha="2026-05-12"))
+
+    resultado = gestor.total_por_categoria()
+    assert resultado == {"comida": 17.5, "ocio": 12.0}
+
+def test_total_general(tmp_path):
+
+    ruta= tmp_path / "gastos_test.json"
+    gestor = GestorGastos(ruta)
+
+    gestor.agregar(Gasto(categoria="comida", importe=10.0, fecha="2026-09-10"))
+    gestor.agregar(Gasto(categoria="comida", importe=7.5, fecha="2026-08-11"))
+    gestor.agregar(Gasto(categoria="ocio", importe=12.0, fecha="2026-05-12"))
+
+    resultado = gestor.total_general()
+    assert resultado == 29.5
+
 
 
 

@@ -4,7 +4,7 @@ Gestor de gastos personales en Python con persistencia en JSON mediante uso de C
 
 ## Instalación
 
-pip install -r requirements.txt
+uv sync
 
 ## Uso
 
@@ -13,6 +13,9 @@ Comandos disponibles:
 python main.py add 
 python main.py list
 python main.py total
+
+La aplicación registra información de estado (INFO) y advertencias/errores (WARNING/ERROR) 
+directamente en consola, con fecha, hora y nivel, gracias al módulo `logging`.
 
 Uso de comandos:
 
@@ -47,3 +50,10 @@ resultado: imprime el total general y el desglose por categoría como texto form
 - `storage.py` — carga y guardado de datos en JSON y transforma de objeto gasto a diccionario y viceversa para futuras cargas y guardados
 - `main.py` — punto de entrada y manejo del programa mediante CLI argparse
 - `excepciones.py` — cuerpo de excepciones propias
+- `gestor.py` — uso simplificado de listas de gasto reutilizando metodos de gasto
+- `decoradores.py` — cuerpo de envolturas para las funciones
+- `test_gasto.py` — pruebas realizadas en la clase Gasto con uso de fixture y parametrize de Pytest
+- `test_gestor.py` — pruebas realizadas en la clase gestor usando tmp_path
+- `test_storage.py` — pruebas realizadas en la clase storage usando pytest fixture
+- `uv.lock` — versiones que se van a instalar
+- `pyproject.toml` — requerimientos del programa
