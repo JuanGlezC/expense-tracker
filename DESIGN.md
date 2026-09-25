@@ -17,6 +17,7 @@ Gasto:
   - categoria: str
   - importe: float
   - fecha: str (formato ISO: "2026-09-14")
+  - Id: str
 
 GestorGastos
 
@@ -70,3 +71,16 @@ Esta versión no va a modificar ni borrar datos
 --importe: float valido
 --fecha: string que se ajusten al formato de clase datatime
 
+9. Métodos API
+
+
+- Add -> Petición POST: Body: JSON ejemplo POST/gastos {"categoria": "comida", "importe": 10.5, "fecha": "2026-09-10"}
+- List -> Petición GET: ejemplo GET/gastos?categoria=comida /categoria es opcional
+- Total -> Petición GET: ejemplo: GET/gastos/total
+
+Respuestas esperadas: 
+- 201 para creación exitosa 
+- 200 para lecturas exitosas 
+- 400/422 para datos inválidos
+- 404 no existe el recurso
+- 500 error del servidor

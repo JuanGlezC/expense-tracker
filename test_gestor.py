@@ -58,6 +58,18 @@ def test_total_general(tmp_path):
     resultado = gestor.total_general()
     assert resultado == 29.5
 
+def test_id_se_mantiene_estable_tras_guardar_y_recargar(tmp_path):
+    ruta = tmp_path / "gastos_test.json"
+    gestor = GestorGastos(ruta)
+    nuevo_gasto = Gasto(categoria="comida", importe=10.0, fecha="2026-09-10")
+    id_original = nuevo_gasto.id
+
+    gestor.agregar(nuevo_gasto)
+    gestor.guardar()
+
+    gestor_verificacion = GestorGastos(ruta)
+    assert gestor_verificacion.gastos[0].id == id_original
+
 
 
 

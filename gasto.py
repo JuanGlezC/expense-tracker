@@ -3,16 +3,22 @@ from collections import defaultdict
 from datetime import datetime
 from dataclasses import dataclass
 from excepciones import CategoriaInvalidaError,FechaInvalidaError,DatosIncompletosError,ImporteInvalidoError
-
+import uuid
 
 @dataclass
+
 class Gasto:
-    categoria:str
+    categoria: str
     importe: float
     fecha: str
+    id: str = ""
+    
 
     def __post_init__(self):
         """Valida categoria, importe y fecha; lanza una excepcion especifica segun el campo que falle."""
+
+        if not self.id:
+            self.id = str(uuid.uuid4())
         if not isinstance(self.categoria, str):
             raise CategoriaInvalidaError(f"La categoría debe ser texto: {self.categoria}")
         #valida que la categoria sea un string

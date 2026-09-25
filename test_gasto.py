@@ -27,3 +27,13 @@ def test_gasto_valido_se_crea_correctamente(gasto_valido):
 def test_gasto_invalido_lanza_excepcion_correcta(categoria, importe, fecha, excepcion_esperada):
     with pytest.raises(excepcion_esperada):
         Gasto(categoria=categoria, importe=importe, fecha=fecha)
+
+def test_gasto_genera_id_automaticamente():
+    gasto = Gasto(categoria="comida", importe=10.0, fecha="2026-09-10")
+    assert gasto.id != ""
+    assert isinstance(gasto.id, str)
+
+def test_dos_gastos_distintos_tienen_ids_distintos():
+    gasto1 = Gasto(categoria="comida", importe=10.0, fecha="2026-09-10")
+    gasto2 = Gasto(categoria="comida", importe=10.0, fecha="2026-09-10")
+    assert gasto1.id != gasto2.id
