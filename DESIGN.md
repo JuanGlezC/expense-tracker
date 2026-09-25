@@ -71,16 +71,49 @@ Esta versión no va a modificar ni borrar datos
 --importe: float valido
 --fecha: string que se ajusten al formato de clase datatime
 
-9. Métodos API
+9. API REST
 
+Alcance: esta API solo opera sobre la colección completa de gastos (crear y consultar).
+No expone rutas /gastos/{id} para editar o borrar un gasto individual, aunque el modelo
+Gasto ya incluye un campo id (UUID) generado automáticamente, pensado para soportar esas
+operaciones en una versión futura sin necesidad de migrar datos de nuevo.
 
-- Add -> Petición POST: Body: JSON ejemplo POST/gastos {"categoria": "comida", "importe": 10.5, "fecha": "2026-09-10"}
-- List -> Petición GET: ejemplo GET/gastos?categoria=comida /categoria es opcional
-- Total -> Petición GET: ejemplo: GET/gastos/total
+### POST /gastos
+- Body: {"categoria": str, "importe": float, "fecha": str}
+- Éxito: 201 Created — devuelve el gasto creado, incluyendo el id generado por el servidor
+- Error: 400/422 si categoria, importe o fecha no pasan la validación de Gasto
+- Ejemplo de respuesta (201):
+{
+  "id": "3d4be023-f325-43c7-8f40-0946e06af87f",
+  "categoria": "comida",
+  "importe": 10.5,
+  "fecha": "2026-09-10"
+}
 
-Respuestas esperadas: 
-- 201 para creación exitosa 
-- 200 para lecturas exitosas 
-- 400/422 para datos inválidos
-- 404 no existe el recurso
-- 500 error del servidor
+### GET /gastos
+- Query param opcional: ?categoria=comida
+- Éxito: 200 OK — devuelve una lista de gastos (todos, o filtrados por categoría)
+- Ejemplo de respuesta (200), sin filtro:
+[
+  {"id": "3d4be023-...", "categoria": "comida", "importe": 10.5, "fecha": "2026-09-10"},
+  {"id": "4587ae54-...", "categoria": "ocio", "importe": 20.0, "fecha": "2026-09-14"}
+]
+- Ejemplo de respuesta (200), con ?categoria=comida:
+[
+  {"id": "3d4be023-...", "categoria": "comida", "importe": 10.5, "fecha": "2026-09-10"}
+]
+
+### GET /gastos/total
+- Sin parámetros
+- Éxito: 200 OK — devuelve el total general y el desglose por categoría
+- Ejemplo de respuesta (200):
+{
+  "total_general": 66.0,
+  "por_categoria": {"comida": 51.5, "ocio": 14.5}
+}
+
+### Casos de error comunes a los tres endpoints
+- 404 Not Found: no aplica a estos endpoints en su forma actual (no hay rutas con {id})
+- 500 Internal Server Error: fallo no controlado del servidor (por ejemplo, JSON corrupto
+  en el almacén de persistencia); se debe evitar mostrando siempre un error controlado
+  (400/422) para cualquier problema previsible de datos de entrada
