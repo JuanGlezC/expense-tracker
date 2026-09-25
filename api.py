@@ -1,9 +1,13 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-
+from pathlib import Path
+from gestor import GestorGastos
+from typing import Optional,List
+from gasto import Gasto
 
 app = FastAPI()
 
+RUTA_DATOS = Path("transacciones.json")
 
 class GastoInput(BaseModel):
 
@@ -12,11 +16,16 @@ class GastoInput(BaseModel):
     fecha: str
 
 
-@app.post("/gastos")
-def crear_un_gasto(gasto: GastoInput):
-    return {"recibido": gasto}
 
 
+
+
+@app.get("/gastos", response_model=List[Gasto])
+def listar_gastos(categoria: Optional[str] = None):
+    gestor = GestorGastos(RUTA_DATOS)
+    if categoria:
+        return gestor.filtrar_por_categoria(categoria)
+    return gestor.gastos
 
 
 
