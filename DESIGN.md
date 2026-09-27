@@ -78,6 +78,9 @@ No expone rutas /gastos/{id} para editar o borrar un gasto individual, aunque el
 Gasto ya incluye un campo id (UUID) generado automáticamente, pensado para soportar esas
 operaciones en una versión futura sin necesidad de migrar datos de nuevo.
 
+Las peticiones de la api están creadas de forma asíncrona (async) aunque no aporta un rendimiento real
+ futuramente esta pensada la incorporación de una bbdd en el proyecto y es una anticipación de diseño
+
 ### POST /gastos
 - Body: {"categoria": str, "importe": float, "fecha": str}
 - Éxito: 201 Created — devuelve el gasto creado, incluyendo el id generado por el servidor
@@ -117,3 +120,5 @@ operaciones en una versión futura sin necesidad de migrar datos de nuevo.
 - 500 Internal Server Error: fallo no controlado del servidor (por ejemplo, JSON corrupto
   en el almacén de persistencia); se debe evitar mostrando siempre un error controlado
   (400/422) para cualquier problema previsible de datos de entrada
+
+

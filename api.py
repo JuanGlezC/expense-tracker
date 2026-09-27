@@ -40,7 +40,7 @@ def manejar_datos_incompletos(request: Request, exc: DatosIncompletosError):
 
 
 @app.post("/gastos", status_code=201)
-def crear_un_gasto(gasto_input: GastoInput):
+async def crear_un_gasto(gasto_input: GastoInput):
     gasto = Gasto(
         categoria=gasto_input.categoria,
         importe=gasto_input.importe,
@@ -54,14 +54,14 @@ def crear_un_gasto(gasto_input: GastoInput):
 
 
 @app.get("/gastos", response_model=List[Gasto])
-def listar_gastos(categoria: Optional[str] = None):
+async def listar_gastos(categoria: Optional[str] = None):
     gestor = GestorGastos(RUTA_DATOS)
     if categoria:
         return gestor.filtrar_por_categoria(categoria)
     return gestor.gastos
 
 @app.get("/gastos/total", status_code=200)
-def obtener_total():
+async def obtener_total():
     gestor=GestorGastos(RUTA_DATOS)
     return{
         "total_general": gestor.total_general(),
@@ -69,5 +69,5 @@ def obtener_total():
     }
 
 @app.get("/")
-def leer_raiz():
+async def leer_raiz():
     return {"mensaje": "Bienvenido a expense-tracker API"}
