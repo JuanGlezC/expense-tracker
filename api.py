@@ -4,16 +4,39 @@ from pathlib import Path
 from gestor import GestorGastos
 from typing import Optional,List
 from gasto import Gasto
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from excepciones import CategoriaInvalidaError,ImporteInvalidoError,FechaInvalidaError,DatosIncompletosError
 
 app = FastAPI()
 
 RUTA_DATOS = Path("transacciones.json")
+
 
 class GastoInput(BaseModel):
 
     categoria: str
     importe: float
     fecha: str
+
+
+
+@app.exception_handler(CategoriaInvalidaError)
+def manejar_categoria_invalida(request: Request, exc: CategoriaInvalidaError):
+    return JSONResponse(status_code=400, content={"error": str(exc)})
+
+@app.exception_handler(ImporteInvalidoError)
+def manejar_importe_invalido(request: Request, exc: ImporteInvalidoError):
+    return JSONResponse(status_code=400, content={"error": str(exc)})
+
+@app.exception_handler(FechaInvalidaError)
+def manejar_fecha_invalida(request: Request, exc: FechaInvalidaError):
+    return JSONResponse(status_code=400, content={"error": str(exc)})
+@app.exception_handler(DatosIncompletosError)
+def manejar_datos_incompletos(request: Request, exc: DatosIncompletosError):
+    return JSONResponse(status_code=400, content={"error":str(exc)})
+
+
 
 
 @app.post("/gastos", status_code=201)
@@ -37,7 +60,7 @@ def listar_gastos(categoria: Optional[str] = None):
         return gestor.filtrar_por_categoria(categoria)
     return gestor.gastos
 
-@app.get("/gastos/total", status_code=201)
+@app.get("/gastos/total", status_code=200)
 def obtener_total():
     gestor=GestorGastos(RUTA_DATOS)
     return{
