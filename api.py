@@ -16,7 +16,17 @@ class GastoInput(BaseModel):
     fecha: str
 
 
-
+@app.post("/gastos", status_code=201)
+def crear_un_gasto(gasto_input: GastoInput):
+    gasto = Gasto(
+        categoria=gasto_input.categoria,
+        importe=gasto_input.importe,
+        fecha=gasto_input.fecha
+    )
+    gestor = GestorGastos(RUTA_DATOS)
+    gestor.agregar(gasto)
+    gestor.guardar()
+    return gasto
 
 
 
@@ -27,7 +37,13 @@ def listar_gastos(categoria: Optional[str] = None):
         return gestor.filtrar_por_categoria(categoria)
     return gestor.gastos
 
-
+@app.get("/gastos/total", status_code=201)
+def obtener_total():
+    gestor=GestorGastos(RUTA_DATOS)
+    return{
+        "total_general": gestor.total_general(),
+        "por_categoria": gestor.total_por_categoria()
+    }
 
 @app.get("/")
 def leer_raiz():
