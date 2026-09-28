@@ -24,7 +24,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise RuntimeError("Falta la variable de entorno SECRET_KEY")
 
-# Usuarios simulados: solo para practicar. Una app real guarda hashes, nunca contraseñas en claro.
+# Usuarios simulados: solo para practicar.
 USUARIOS = {"bosco": "clave-de-prueba"}
 
 
