@@ -7,8 +7,17 @@ from gasto import Gasto
 from fastapi import Request, Depends
 from fastapi.responses import JSONResponse
 from excepciones import CategoriaInvalidaError,ImporteInvalidoError,FechaInvalidaError,DatosIncompletosError
+from dotenv import load_dotenv
+import os
+
+
+
 
 app = FastAPI()
+
+load_dotenv()
+ruta = os.getenv("RUTA_DATOS", "transacciones.json")
+
 
 RUTA_DATOS = Path("transacciones.json")
 

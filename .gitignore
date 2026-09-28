@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 comandos_venv_requeriments.txt
 transacciones.json
+.coverage
+.env
