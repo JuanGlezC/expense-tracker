@@ -4,7 +4,7 @@ from pathlib import Path
 from gestor import GestorGastos
 from typing import Optional,List
 from gasto import Gasto
-from fastapi import Request, Depends
+from fastapi import Request, Depends, Header,HTTPException
 from fastapi.responses import JSONResponse
 from excepciones import CategoriaInvalidaError,ImporteInvalidoError,FechaInvalidaError,DatosIncompletosError
 from dotenv import load_dotenv
@@ -17,7 +17,7 @@ app = FastAPI()
 
 load_dotenv()
 ruta = os.getenv("RUTA_DATOS", "transacciones.json")
-
+API_KEY = os.getenv("API_KEY")
 
 RUTA_DATOS = Path("transacciones.json")
 
@@ -27,6 +27,12 @@ class GastoInput(BaseModel):
     categoria: str
     importe: float
     fecha: str
+
+def verificar_api_key(x_api_key: str = Header(default=None)):
+    if x_api_key is None:
+        raise HTTPException(status_code=401, detail="API key es ausente")
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="La API Key es inválida")
 
 
 
@@ -49,7 +55,7 @@ def manejar_datos_incompletos(request: Request, exc: DatosIncompletosError):
 def get_gestor() -> GestorGastos:
     return GestorGastos(RUTA_DATOS)
 
-@app.post("/gastos", status_code=201)
+@app.post("/gastos", status_code=201, dependencies=[Depends(verificar_api_key)])
 async def crear_un_gasto(gasto_input: GastoInput, gestor: GestorGastos = Depends(get_gestor)):
     gasto = Gasto(
         categoria=gasto_input.categoria,
@@ -63,14 +69,14 @@ async def crear_un_gasto(gasto_input: GastoInput, gestor: GestorGastos = Depends
 
 
 
-@app.get("/gastos", response_model=List[Gasto])
+@app.get("/gastos", response_model=List[Gasto], dependencies=[Depends(verificar_api_key)])
 async def listar_gastos(categoria: Optional[str] = None, gestor: GestorGastos = Depends(get_gestor)):
     
     if categoria:
         return gestor.filtrar_por_categoria(categoria)
     return gestor.gastos
 
-@app.get("/gastos/total", status_code=200)
+@app.get("/gastos/total", status_code=200, dependencies=[Depends(verificar_api_key)])
 async def obtener_total(gestor: GestorGastos = Depends(get_gestor)):
     
     return{
