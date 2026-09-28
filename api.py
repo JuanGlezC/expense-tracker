@@ -60,13 +60,6 @@ def leer_token(token: str) -> dict:
     return jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
 
 
-def verificar_api_key(x_api_key: str = Header(default=None)):
-    if x_api_key is None:
-        raise HTTPException(status_code=401, detail="API key es ausente")
-    if x_api_key != API_KEY:
-        raise HTTPException(status_code=401, detail="La API Key es inválida")
-
-
 @app.exception_handler(CategoriaInvalidaError)
 def manejar_categoria_invalida(request: Request, exc: CategoriaInvalidaError):
     return JSONResponse(status_code=400, content={"error": str(exc)})
