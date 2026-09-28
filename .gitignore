@@ -5,3 +5,5 @@ comandos_venv_requeriments.txt
 transacciones.json
 .coverage
 .env
+prueba_jwt.py
+prueba_pydantic.py
