@@ -16,10 +16,10 @@ import os
 app = FastAPI()
 
 load_dotenv()
-ruta = os.getenv("RUTA_DATOS", "transacciones.json")
+RUTA_DATOS = Path(os.getenv("RUTA_DATOS", "transacciones.json"))
 API_KEY = os.getenv("API_KEY")
 
-RUTA_DATOS = Path("transacciones.json")
+
 
 
 class GastoInput(BaseModel):
