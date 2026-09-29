@@ -42,11 +42,21 @@ class GastoInput(BaseModel):
     categoria: str
     importe: float
     fecha: str
+    model_config = {
+        "json_schema_extra": {
+            "example": {"categoria": "comida", "importe": 10.5, "fecha": "2026-09-10"}
+        }
+    }
 
 
 class LoginInput(BaseModel):
     usuario: str
     password: str
+    model_config = {
+        "json_schema_extra": {
+            "example": {"usuario": "juan", "password":"mi-clave-de-ejemplo"}
+        }
+    }
 
 esquema_bearer = HTTPBearer()
 
@@ -96,6 +106,7 @@ def get_gestor() -> GestorGastos:
 
 @app.post("/login")
 async def login(datos: LoginInput):
+    """Comprueba usuario y password para autenticar si el usuario es admitido"""
     if USUARIOS.get(datos.usuario) != datos.password:
         raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
     return {"access_token": crear_token(datos.usuario), "token_type": "bearer"}
@@ -103,6 +114,7 @@ async def login(datos: LoginInput):
 
 @app.post("/gastos", status_code=201, dependencies=[Depends(verificar_token)])
 async def crear_un_gasto(gasto_input: GastoInput, gestor: GestorGastos = Depends(get_gestor)):
+    """Crea un nuevo gasto y lo persiste. Requiere autenticación."""
     gasto = Gasto(
         categoria=gasto_input.categoria,
         importe=gasto_input.importe,
@@ -115,6 +127,7 @@ async def crear_un_gasto(gasto_input: GastoInput, gestor: GestorGastos = Depends
 
 @app.get("/gastos", response_model=List[Gasto], dependencies=[Depends(verificar_token)])
 async def listar_gastos(categoria: Optional[str] = None, gestor: GestorGastos = Depends(get_gestor)):
+    """Lista de gastos por categoria opcionalmente, si la categoria es ausente devuelve la lista completa. Requiere autenticación"""
     if categoria:
         return gestor.filtrar_por_categoria(categoria)
     return gestor.gastos
@@ -122,6 +135,7 @@ async def listar_gastos(categoria: Optional[str] = None, gestor: GestorGastos = 
 
 @app.get("/gastos/total", status_code=200, dependencies=[Depends(verificar_token)])
 async def obtener_total(gestor: GestorGastos = Depends(get_gestor)):
+    """Obtiene los importes totales sumados y los importes por categoria sumados. Requiere autenticación"""
     return {
         "total_general": gestor.total_general(),
         "por_categoria": gestor.total_por_categoria(),
@@ -130,4 +144,5 @@ async def obtener_total(gestor: GestorGastos = Depends(get_gestor)):
 
 @app.get("/")
 async def leer_raiz():
+    """Mensaje de bienvenida de la API"""
     return {"mensaje": "Bienvenido a expense-tracker API"}
