@@ -79,7 +79,10 @@ Gasto ya incluye un campo id (UUID) generado automáticamente, pensado para sopo
 operaciones en una versión futura sin necesidad de migrar datos de nuevo.
 
 Las peticiones de la api están creadas de forma asíncrona (async) aunque no aporta un rendimiento real
- futuramente esta pensada la incorporación de una bbdd en el proyecto y es una anticipación de diseño
+futuramente esta pensada la incorporación de una bbdd en el proyecto y es una anticipación de diseño
+
+Middleware CORS: configurado de forma permisiva (todos los métodos y cabeceras) para desarrollo local.
+Antes de un despliegue real habría que restringir allow_origins a los dominios reales del frontend.
 
 ### POST /gastos
 - Body: {"categoria": str, "importe": float, "fecha": str}

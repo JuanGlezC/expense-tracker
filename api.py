@@ -12,10 +12,20 @@ import os
 import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.cors import CORSMiddleware
+
 
 load_dotenv()
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 RUTA_DATOS = Path(os.getenv("RUTA_DATOS", "transacciones.json"))
 API_KEY = os.getenv("API_KEY")

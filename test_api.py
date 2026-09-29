@@ -129,6 +129,7 @@ def test_obtener_total_de_gastos(tmp_path):
     assert respuesta_total.json()["total_general"] == 15.0
     assert respuesta_total.json()["por_categoria"]["comida"] == 10.0
     assert respuesta_total.json()["por_categoria"]["ocio"] == 5.0
+    app.dependency_overrides.clear()
         
     
     
