@@ -28,7 +28,6 @@ app.add_middleware(
 
 
 RUTA_DATOS = Path(os.getenv("RUTA_DATOS", "transacciones.json"))
-API_KEY = os.getenv("API_KEY")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 if not SECRET_KEY:
@@ -61,6 +60,7 @@ class LoginInput(BaseModel):
 esquema_bearer = HTTPBearer()
 
 def verificar_token(credenciales: HTTPAuthorizationCredentials = Depends(esquema_bearer)) -> str:
+    """Verifica si el token es válido o ha caducado"""
     try:
         payload = leer_token(credenciales.credentials)
     except jwt.InvalidTokenError:
@@ -69,6 +69,7 @@ def verificar_token(credenciales: HTTPAuthorizationCredentials = Depends(esquema
 
 
 def crear_token(usuario: str) -> str:
+    """Crea un token codificado para el usuario"""
     payload = {
         "sub": usuario,
         "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
@@ -77,6 +78,7 @@ def crear_token(usuario: str) -> str:
 
 
 def leer_token(token: str) -> dict:
+    """decodifica el token para comprobar su validez con la secret key"""
     return jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
 
 
@@ -94,19 +96,19 @@ def manejar_importe_invalido(request: Request, exc: ImporteInvalidoError):
 def manejar_fecha_invalida(request: Request, exc: FechaInvalidaError):
     return JSONResponse(status_code=400, content={"error": str(exc)})
 
-
 @app.exception_handler(DatosIncompletosError)
 def manejar_datos_incompletos(request: Request, exc: DatosIncompletosError):
     return JSONResponse(status_code=400, content={"error": str(exc)})
 
-
 def get_gestor() -> GestorGastos:
+    """crea un gestor para uso de la API"""
     return GestorGastos(RUTA_DATOS)
 
 
 @app.post("/login")
 async def login(datos: LoginInput):
     """Comprueba usuario y password para autenticar si el usuario es admitido"""
+    # Contraseña en claro, la voy a usar de práctica. Futuramente la sustituiré por hash.
     if USUARIOS.get(datos.usuario) != datos.password:
         raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
     return {"access_token": crear_token(datos.usuario), "token_type": "bearer"}

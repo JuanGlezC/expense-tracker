@@ -1,6 +1,7 @@
 # Expense Tracker
 
 Gestor de gastos personales en Python con persistencia en JSON mediante uso de CLI argparse.
+Este proyecto también expone una API REST, ver API.md
 
 ## Instalación
 
@@ -57,3 +58,5 @@ resultado: imprime el total general y el desglose por categoría como texto form
 - `test_storage.py` — pruebas realizadas en la clase storage usando pytest fixture
 - `uv.lock` — versiones que se van a instalar
 - `pyproject.toml` — requerimientos del programa
+- `api.py` — aplicación FastAPI: endpoints REST, autenticación JWT, manejo de errores
+- `test_api.py` — pruebas de la API con TestClient y dependency_overrides

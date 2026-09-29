@@ -124,4 +124,11 @@ Antes de un despliegue real habría que restringir allow_origins a los dominios 
   en el almacén de persistencia); se debe evitar mostrando siempre un error controlado
   (400/422) para cualquier problema previsible de datos de entrada
 
+  10. Autenticación:
+
+- POST /login recibe usuario y contraseña simulados (sin base de datos, tabla fija en memoria), devuelve un JWT.
+- Los tres endpoints de /gastos requieren Authorization: Bearer <token>.
+- .env: SECRET_KEY (firma los tokens, nunca sale del servidor), sustituye a la antigua API KEY por razones de seguridad.
+- Tengo pendiente cambiar la validación de contraseña mediante Hash en fase de producción
+
 
