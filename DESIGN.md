@@ -17,7 +17,7 @@ Gasto:
   - categoria: str
   - importe: float
   - fecha: str (formato ISO: "2026-09-14")
-  - Id: str
+  - id: str
 
 GestorGastos
 
@@ -132,3 +132,9 @@ Antes de un despliegue real habría que restringir allow_origins a los dominios 
 - Tengo pendiente cambiar la validación de contraseña mediante Hash en fase de producción
 
 
+11. Modelo de datos:
+
+- Decisión: La categoria va a ser un campo de texto validado, no he creado una tabla de categoria a la hora de trabajar con BBDD
+dado que los requisitos funcionales que originan la creación de la aplicación (Sección 2qui) son perfectamente realizables con la estructura actual. El usuario puede crear categorías con cualquier texto no numérico por lo que no existe una necesidad real de crear la tabla
+categorias.
+Se revisará esta decisión en el futuro si se añaden requisitos funcionales en la aplicación.

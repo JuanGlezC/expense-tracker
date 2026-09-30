@@ -7,3 +7,4 @@ transacciones.json
 .env
 prueba_jwt.py
 prueba_pydantic.py
+gastos_prueba.db
