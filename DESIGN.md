@@ -145,3 +145,10 @@ Se revisará esta decisión en el futuro si se añaden requisitos funcionales en
 traer más problemas futuros de arquitectura el tenerlas fusionadas en caso de migración de base de datos y en la realización de pruebas
 y test por separado de reglas de negocio que las ventajas que nos aportaría el tenerlas fusionadas.
 GastoCreate/GastoOut también quedaron fuera de esta decisión de fusión y preferí tener la logica y validación separadas por arquitectura.
+
+13. Cambios en la estructura aplciados:
+
+- La persistencia deja de ser transacciones.json; ahora storage.py habla con PostgreSQL vía SQLAlchemy.
+- se eliminó guardar() de 'storage.py' dado que el patrón de "cargar todo, acumular en memoria, reescribir todo al guardar" permite que una escritura sobrescriba y pierda los cambios de otra que ocurrió casi a la vez.
+- 'transacciones.json' deja de ser usado en el programa, se conserva de momento como prueba en desarrollo pero se eliminará tras la migración completa a la BBDD.
+- Gasto, GastoORM, y los Pydantic de la API se conservan como estructuras independientes.

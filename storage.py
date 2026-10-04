@@ -1,73 +1,26 @@
-import json
-from pathlib import Path
-from dataclasses import asdict
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+from GastoORM import GastoORM
 from gasto import Gasto
-from excepciones import DatosIncompletosError,CategoriaInvalidaError,ImporteInvalidoError,FechaInvalidaError
-import logging
+
+def agregar_gasto(engine, gasto: Gasto) -> None:
+    """convierte el Gasto de dominio a GastoORM y lo persiste inmediatamente en la base de datos"""
+    gasto_orm = GastoORM(
+        id=gasto.id,
+        categoria=gasto.categoria,
+        importe=gasto.importe,
+        fecha=gasto.fecha,
+    )
+    with Session(engine) as sesion:
+        sesion.add(gasto_orm)
+        sesion.commit()
 
 
-logger = logging.getLogger(__name__)
-
-
-def guardar_transacciones(lista_transacciones: list[dict], ruta_archivo: Path)->None:
-    """guarda en el json la lista de transacciones indicadas en la ruta del argumento"""
-    with open(ruta_archivo, "w") as archivo:
-        json.dump(lista_transacciones, archivo, indent=2)
-
-        
-
-
-
-
-
-def cargar_transacciones(ruta_archivo: Path) -> list[dict]:
-    """carga un archivo json y devuelve un list[dict] con el contenido del archivo"""
-    if not ruta_archivo.exists():
-        return []
-    with open(ruta_archivo, "r") as archivo:
-        try:
-            return json.load(archivo)
-        except json.JSONDecodeError as error:
-            logger.error(f"El archivo esta corrupto o no es un JSON valido {error}")
-            return []
-
-
-def dict_a_gasto(datos:dict)->Gasto:
-    """transforma los diccionarios de la cadena de gastos para convertirlos en la clase Gasto"""
-
-
-    try:
-        gasto=Gasto(**datos)
-
-    except TypeError:
-        raise DatosIncompletosError(f"Las claves no son correctas en {datos}")
-
-    return gasto
-
-
-
-def gasto_a_dict(gasto:Gasto)->dict:
-    """transforma los gastos a un diccionario para posterior guardado de datos en el archivo"""
-
-   
-    diccionario:dict=asdict(gasto)
-    return diccionario
-
-
-
-
-
-def cargar_gastos_validados(ruta_archivo: Path) -> list[Gasto]:
-    """carga los datos del archivo y carga las transacciones realizando una verificacion de que todos los datos se ajustan a la clase Gasto
-    y captura las excepciones de datos corruptos"""
-
-    transacciones_dict = cargar_transacciones(ruta_archivo)
-    gastos = []
-    for transaccion in transacciones_dict:
-        try:
-            gastos.append(dict_a_gasto(transaccion))
-        except (CategoriaInvalidaError, FechaInvalidaError, ImporteInvalidoError, DatosIncompletosError) as error:
-                logger.warning(f"Transacción inválida ignorada al cargar: {error}")
-                
-    return gastos
-
+def cargar_gastos(engine) -> list[Gasto]:
+    """consulta todos los GastoORM de la tabla y los convierte de vuelta a Gasto de dominio"""
+    with Session(engine) as sesion:
+        gastos_orm = sesion.scalars(select(GastoORM)).all()
+        return [
+            Gasto(id=g.id, categoria=g.categoria, importe=g.importe, fecha=g.fecha)
+            for g in gastos_orm
+        ]

@@ -10,3 +10,4 @@ prueba_pydantic.py
 gastos_prueba.db
 pruebaORM.py
 prueba_bbdd.py
+prueba_gestor.py
