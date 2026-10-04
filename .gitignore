@@ -8,3 +8,5 @@ transacciones.json
 prueba_jwt.py
 prueba_pydantic.py
 gastos_prueba.db
+pruebaORM.py
+prueba_bbdd.py

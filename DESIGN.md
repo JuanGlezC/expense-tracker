@@ -138,3 +138,10 @@ Antes de un despliegue real habría que restringir allow_origins a los dominios 
 dado que los requisitos funcionales que originan la creación de la aplicación (Sección 2qui) son perfectamente realizables con la estructura actual. El usuario puede crear categorías con cualquier texto no numérico por lo que no existe una necesidad real de crear la tabla
 categorias.
 Se revisará esta decisión en el futuro si se añaden requisitos funcionales en la aplicación.
+
+12. Decisión sobre estrcutura del proyecto:
+
+- Decisión: Se planteó la fusión del dataclass Gasto con GastoORM fusionando ambas estructuras, sin embargo consideré que podría 
+traer más problemas futuros de arquitectura el tenerlas fusionadas en caso de migración de base de datos y en la realización de pruebas
+y test por separado de reglas de negocio que las ventajas que nos aportaría el tenerlas fusionadas.
+GastoCreate/GastoOut también quedaron fuera de esta decisión de fusión y preferí tener la logica y validación separadas por arquitectura.
