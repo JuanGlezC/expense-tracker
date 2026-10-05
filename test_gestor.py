@@ -1,75 +1,57 @@
-from gestor import GestorGastos
 from gasto import Gasto
-import pytest
-
-def test_gestor_arranca_con_lista_vacia_si_archivo_no_existe(tmp_path):
-    ruta = tmp_path / "gastos_test.json"
-    gestor = GestorGastos(ruta)
-    assert gestor.gastos == []
+from gestor import GestorGastos
 
 
-def test_agregar_y_guardar_persiste_el_gasto(tmp_path):
-    ruta = tmp_path / "gastos_test.json"
-    gestor = GestorGastos(ruta)
+def test_gestor_arranca_con_lista_vacia(engine_test):
+    gestor = GestorGastos(engine_test)
+    assert gestor.listar() == []
+
+
+def test_agregar_persiste_el_gasto(engine_test):
+    gestor = GestorGastos(engine_test)
     nuevo_gasto = Gasto(categoria="comida", importe=10.0, fecha="2026-09-10")
+
     gestor.agregar(nuevo_gasto)
-    gestor.guardar()
 
-    gestor_verificacion = GestorGastos(ruta)
-    assert len(gestor_verificacion.gastos) == 1
-    assert gestor_verificacion.gastos[0].categoria == "comida"
+    assert gestor.listar() == [nuevo_gasto]
 
 
-
-
-def test_filtrar_por_categoria(tmp_path):
-    ruta = tmp_path / "gastos_test.json"
-    gestor = GestorGastos(ruta)
-    
+def test_filtrar_por_categoria(engine_test):
+    gestor = GestorGastos(engine_test)
     gestor.agregar(Gasto(categoria="comida", importe=10.0, fecha="2026-09-10"))
-    gestor.agregar(Gasto(categoria="comida", importe=7.5, fecha="2026-08-11"))
-    gestor.agregar(Gasto(categoria="ocio", importe=12.0, fecha="2026-05-12"))
+    gestor.agregar(Gasto(categoria="ocio", importe=20.0, fecha="2026-09-11"))
 
     resultado = gestor.filtrar_por_categoria("comida")
-    assert len(resultado) == 2  
-    assert all(gasto.categoria == "comida" for gasto in resultado)
 
-def test_total_por_categoria(tmp_path):
+    assert len(resultado) == 1
+    assert resultado[0].categoria == "comida"
 
-    ruta= tmp_path / "gastos_test.json"
-    gestor = GestorGastos(ruta)
 
+def test_total_por_categoria(engine_test):
+    gestor = GestorGastos(engine_test)
     gestor.agregar(Gasto(categoria="comida", importe=10.0, fecha="2026-09-10"))
-    gestor.agregar(Gasto(categoria="comida", importe=7.5, fecha="2026-08-11"))
-    gestor.agregar(Gasto(categoria="ocio", importe=12.0, fecha="2026-05-12"))
+    gestor.agregar(Gasto(categoria="comida", importe=5.0, fecha="2026-09-11"))
+    gestor.agregar(Gasto(categoria="ocio", importe=20.0, fecha="2026-09-12"))
 
-    resultado = gestor.total_por_categoria()
-    assert resultado == {"comida": 17.5, "ocio": 12.0}
+    assert gestor.total_por_categoria() == {"comida": 15.0, "ocio": 20.0}
 
-def test_total_general(tmp_path):
 
-    ruta= tmp_path / "gastos_test.json"
-    gestor = GestorGastos(ruta)
-
+def test_total_general(engine_test):
+    gestor = GestorGastos(engine_test)
     gestor.agregar(Gasto(categoria="comida", importe=10.0, fecha="2026-09-10"))
-    gestor.agregar(Gasto(categoria="comida", importe=7.5, fecha="2026-08-11"))
-    gestor.agregar(Gasto(categoria="ocio", importe=12.0, fecha="2026-05-12"))
+    gestor.agregar(Gasto(categoria="ocio", importe=20.0, fecha="2026-09-11"))
 
-    resultado = gestor.total_general()
-    assert resultado == 29.5
+    assert gestor.total_general() == 30.0
 
-def test_id_se_mantiene_estable_tras_guardar_y_recargar(tmp_path):
-    ruta = tmp_path / "gastos_test.json"
-    gestor = GestorGastos(ruta)
+
+def test_id_se_mantiene_tras_recargar_con_otro_gestor(engine_test):
     nuevo_gasto = Gasto(categoria="comida", importe=10.0, fecha="2026-09-10")
     id_original = nuevo_gasto.id
 
-    gestor.agregar(nuevo_gasto)
-    gestor.guardar()
+    GestorGastos(engine_test).agregar(nuevo_gasto)
 
-    gestor_verificacion = GestorGastos(ruta)
-    assert gestor_verificacion.gastos[0].id == id_original
-
+    gestor_nuevo = GestorGastos(engine_test)
+    assert gestor_nuevo.listar()[0].id == id_original
 
 
 
