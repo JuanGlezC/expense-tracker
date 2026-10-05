@@ -10,3 +10,4 @@ class GastoORM(Base):
     categoria: Mapped[str]
     importe: Mapped[float]
     fecha: Mapped[str]
+    descripcion: Mapped[str | None]

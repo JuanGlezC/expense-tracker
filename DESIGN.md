@@ -152,3 +152,17 @@ GastoCreate/GastoOut también quedaron fuera de esta decisión de fusión y pref
 - se eliminó guardar() de 'storage.py' dado que el patrón de "cargar todo, acumular en memoria, reescribir todo al guardar" permite que una escritura sobrescriba y pierda los cambios de otra que ocurrió casi a la vez.
 - 'transacciones.json' deja de ser usado en el programa, se conserva de momento como prueba en desarrollo pero se eliminará tras la migración completa a la BBDD.
 - Gasto, GastoORM, y los Pydantic de la API se conservan como estructuras independientes.
+
+14. Gestión del esquema de base de datos con Alembic:
+
+- Decisión: las tablas dejan de crearse a mano (el CREATE TABLE manual). El esquema se versiona con Alembic: cada
+cambio en la estructura de la base de datos es una migración en `alembic/versions/`, con su `upgrade()` y su `downgrade()`.
+- Motivo: si se cambia `GastoORM` sin tocar la base de datos, el código y la tabla quedan desincronizados y cualquier operación
+sobre `gastos` falla con "column does not exist". Con migraciones versionadas, cualquier base de datos (la de un compañero, un
+servidor de test, producción) llega al esquema actual ejecutando `alembic upgrade head`.
+- Regla: todo cambio en un modelo SQLAlchemy va acompañado de su migración (`alembic revision --autogenerate`), revisada a mano
+antes de aplicarla, y se commitea junto con el cambio del modelo.
+- Tabla inicial: la tabla `gastos` creada a mano se borró y se regeneró con la primera migración, para que el historial de Alembic
+sea el único origen del esquema. Los datos que había eran solo de prueba.
+- Se revisará esta decisión si aparece una base de datos con datos reales previos a Alembic (en ese caso se usaría `alembic stamp`
+en vez de recrear la tabla).
