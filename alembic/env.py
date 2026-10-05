@@ -14,9 +14,10 @@ config = context.config
 
 load_dotenv()
 DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST", "localhost")
 config.set_main_option(
     "sqlalchemy.url",
-    f"postgresql+psycopg://postgres:{DB_PASSWORD}@localhost:5432/expense_tracker",
+    f"postgresql+psycopg://postgres:{DB_PASSWORD}@{DB_HOST}:5432/expense_tracker",
 )
 
 # Interpret the config file for Python logging.
