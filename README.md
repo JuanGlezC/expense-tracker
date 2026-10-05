@@ -1,62 +1,74 @@
-# Expense Tracker
+# expense-tracker
 
-Gestor de gastos personales en Python con persistencia en JSON mediante uso de CLI argparse.
-Este proyecto también expone una API REST, ver API.md
+API REST para registrar gastos por categoría, con autenticación JWT, base de datos PostgreSQL, migraciones versionadas y tests de integración. Todo el sistema se levanta con Docker Compose.
 
-## Instalación
+## Tecnologías
 
+Python 3.14 · FastAPI · Pydantic · SQLAlchemy 2 · PostgreSQL 18 · Alembic · pytest · Docker Compose · uv
+
+## Puesta en marcha
+
+Requisitos: Docker Desktop.
+
+1. Crea tu archivo de configuración a partir del ejemplo y rellena los valores:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+El archivo `.env` necesita dos variables: `DB_PASSWORD` (contraseña de PostgreSQL) y `SECRET_KEY` (clave para firmar los tokens JWT, larga y aleatoria).
+
+2. Levanta la base de datos y la API:
+
+```powershell
+docker compose up -d --build
+```
+
+3. Crea las tablas ejecutando las migraciones (solo la primera vez en una base nueva):
+
+```powershell
+docker compose run --rm api alembic upgrade head
+```
+
+4. Abre la documentación interactiva en http://localhost:8000/docs.
+
+Usuario de práctica para el login: `bosco` / `clave-de-prueba`. Es un usuario simulado, solo para desarrollo.
+
+## Desarrollo local y tests
+
+Requisitos: Python 3.14 y [uv](https://docs.astral.sh/uv/).
+
+```powershell
 uv sync
-
-## Uso
-
-Comandos disponibles:
-
-python main.py add 
-python main.py list
-python main.py total
-
-La aplicación registra información de estado (INFO) y advertencias/errores (WARNING/ERROR) 
-directamente en consola, con fecha, hora y nivel, gracias al módulo `logging`.
-
-Uso de comandos:
-
-python main.py add: required: --categoria --importe --fecha
---categoria:no puede estar compuesta únicamente por números
---importe:debe ser un float con caracteres numericos
---fecha:debe ser un string con una fecha en formato valido de la clase datatime
-ejemplo de uso main.py: 
+docker compose up -d db
+docker exec -it expense-tracker-db-1 psql -U postgres -c "CREATE DATABASE expense_tracker_test;"
+python -m pytest -v
 ```
-python main.py add --categoria comida --importe 10.5 --fecha 2026-11-06
-```
-resultado: añade un gasto correcto a la lista de gastos
 
-python main.py list:
---categoria: no puede estar compuesta únicamente por números
-ejemplo de uso: 
-```
-python main.py list --categoria ocio
-```
-resultado: devuelve una lista con los objetos gasto que coincidan con la categoria de busqueda
+Los tests usan una base de datos separada (`expense_tracker_test`) que se vacía antes de cada test, así que nunca tocan tus datos reales. La base de test se crea una sola vez.
 
-python main.py total:
-ejemplo de uso: 
-```
-python main.py total
-```
-resultado: imprime el total general y el desglose por categoría como texto formateado
+Para ejecutar la API fuera de Docker: `python -m uvicorn api:app --reload`.
 
-## Estructura del proyecto
+## Estructura
 
-- `gasto.py` — definicion de clase gasto y validacion de datos
-- `storage.py` — carga y guardado de datos en JSON y transforma de objeto gasto a diccionario y viceversa para futuras cargas y guardados
-- `main.py` — punto de entrada y manejo del programa mediante CLI argparse
-- `excepciones.py` — cuerpo de excepciones propias
-- `gestor.py` — uso simplificado de listas de gasto reutilizando metodos de gasto
-- `decoradores.py` — cuerpo de envolturas para las funciones
-- `test_gasto.py` — pruebas realizadas en la clase Gasto con uso de fixture y parametrize de Pytest
-- `test_gestor.py` — pruebas realizadas en la clase gestor usando tmp_path
-- `test_storage.py` — pruebas realizadas en la clase storage usando pytest fixture
-- `uv.lock` — versiones que se van a instalar
-- `pyproject.toml` — requerimientos del programa
-- `api.py` — aplicación FastAPI: endpoints REST, autenticación JWT, manejo de errores
-- `test_api.py` — pruebas de la API con TestClient y dependency_overrides
+| Archivo | Responsabilidad |
+|---|---|
+| `api.py` | Endpoints, validación de entrada, autenticación JWT, manejo de errores HTTP |
+| `gestor.py` | Lógica de aplicación (`GestorGastos`) |
+| `gasto.py` | Dominio: dataclass `Gasto`, reglas de validación y funciones puras de cálculo |
+| `storage.py` | Único acceso a la base de datos |
+| `GastoORM.py` | Modelo de la tabla `gastos` |
+| `database.py` | Conexión (engine) a PostgreSQL |
+| `alembic/` | Migraciones del esquema |
+| `Dockerfile`, `docker-compose.yml` | Contenedores de la API y la base de datos |
+
+## Documentación
+
+- [API.md](API.md): endpoints, formato de peticiones y códigos de estado.
+- [DESIGN.md](DESIGN.md): decisiones de diseño y su justificación.
+
+## Limitaciones conocidas
+
+- Los usuarios están definidos en el código con contraseña en claro (solo práctica); en un sistema real irían en base de datos con hash.
+- Los filtros y totales se calculan en Python tras leer todas las filas; con muchos datos habría que hacerlos en SQL (`WHERE`, `SUM`, `GROUP BY`).
+- La columna `descripcion` existe en la tabla pero el dominio aún no la usa.
