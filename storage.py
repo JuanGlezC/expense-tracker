@@ -15,6 +15,19 @@ def agregar_gasto(engine, gasto: Gasto) -> None:
         sesion.add(gasto_orm)
         sesion.commit()
 
+def agregar_gastos(engine, gastos: list[Gasto]) -> None:
+    gastos_orm = [
+        GastoORM(id=g.id, categoria=g.categoria, importe=g.importe, fecha=g.fecha)
+        for g in gastos
+    ]
+    with Session(engine) as sesion:
+        try:
+            sesion.add_all(gastos_orm)
+            sesion.commit()
+        except Exception:
+            sesion.rollback()
+            raise
+
 
 def cargar_gastos(engine) -> list[Gasto]:
     """consulta todos los GastoORM de la tabla y los convierte de vuelta a Gasto de dominio"""
