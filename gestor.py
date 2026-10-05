@@ -25,3 +25,7 @@ class GestorGastos:
     def total_por_categoria(self) -> dict[str, float]:
         gastos = cargar_gastos(self.engine)
         return calcular_total_por_categoria(gastos)
+    
+    def listar(self) -> list[Gasto]:
+        """devuelve todos los gastos actuales de la base de datos"""
+        return cargar_gastos(self.engine)

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from pathlib import Path
+
 from gestor import GestorGastos
 from typing import Optional, List
 from gasto import Gasto
@@ -13,6 +13,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
+from database import engine
 
 
 load_dotenv()
@@ -27,7 +28,7 @@ app.add_middleware(
 
 
 
-RUTA_DATOS = Path(os.getenv("RUTA_DATOS", "transacciones.json"))
+
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 if not SECRET_KEY:
@@ -100,10 +101,10 @@ def manejar_fecha_invalida(request: Request, exc: FechaInvalidaError):
 def manejar_datos_incompletos(request: Request, exc: DatosIncompletosError):
     return JSONResponse(status_code=400, content={"error": str(exc)})
 
+
 def get_gestor() -> GestorGastos:
     """crea un gestor para uso de la API"""
-    return GestorGastos(RUTA_DATOS)
-
+    return GestorGastos(engine)
 
 @app.post("/login")
 async def login(datos: LoginInput):
@@ -115,7 +116,7 @@ async def login(datos: LoginInput):
 
 
 @app.post("/gastos", status_code=201, dependencies=[Depends(verificar_token)])
-async def crear_un_gasto(gasto_input: GastoInput, gestor: GestorGastos = Depends(get_gestor)):
+def crear_un_gasto(gasto_input: GastoInput, gestor: GestorGastos = Depends(get_gestor)):
     """Crea un nuevo gasto y lo persiste. Requiere autenticación."""
     gasto = Gasto(
         categoria=gasto_input.categoria,
@@ -123,27 +124,24 @@ async def crear_un_gasto(gasto_input: GastoInput, gestor: GestorGastos = Depends
         fecha=gasto_input.fecha,
     )
     gestor.agregar(gasto)
-    gestor.guardar()
     return gasto
 
 
 @app.get("/gastos", response_model=List[Gasto], dependencies=[Depends(verificar_token)])
-async def listar_gastos(categoria: Optional[str] = None, gestor: GestorGastos = Depends(get_gestor)):
+def listar_gastos(categoria: Optional[str] = None, gestor: GestorGastos = Depends(get_gestor)):
     """Lista de gastos por categoria opcionalmente, si la categoria es ausente devuelve la lista completa. Requiere autenticación"""
     if categoria:
         return gestor.filtrar_por_categoria(categoria)
-    return gestor.gastos
+    return gestor.listar()
 
 
 @app.get("/gastos/total", status_code=200, dependencies=[Depends(verificar_token)])
-async def obtener_total(gestor: GestorGastos = Depends(get_gestor)):
+def obtener_total(gestor: GestorGastos = Depends(get_gestor)):
     """Obtiene los importes totales sumados y los importes por categoria sumados. Requiere autenticación"""
     return {
         "total_general": gestor.total_general(),
         "por_categoria": gestor.total_por_categoria(),
     }
-
-
 @app.get("/")
 async def leer_raiz():
     """Mensaje de bienvenida de la API"""
