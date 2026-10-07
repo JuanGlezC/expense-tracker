@@ -1,61 +1,73 @@
-# Expense Tracker API
+# API de expense-tracker
 
-## Arrancar el servidor
-
-uv sync
-uv run uvicorn api:app --reload
-
-Documentación interactiva en http://127.0.0.1:8000/docs
+Base: `http://localhost:8000`. Documentación interactiva: `/docs`.
 
 ## Autenticación
 
-POST /login con usuario y contraseña devuelve un token JWT.
-Los endpoints de /gastos requieren el header:
-Authorization: Bearer <token>
+Todos los endpoints de `/gastos` requieren un token JWT en la cabecera:
 
-Ejemplo de login:
+```
+Authorization: Bearer <access_token>
+```
 
-{"usuario": "Juan", "password": "mi-clave-secreto"}
-
-Respuesta esperada:
-{"access_token": "eyJhbGci...", "token_type": "bearer"}
+El token se obtiene en `POST /login` y caduca a los 30 minutos.
 
 ## Endpoints
 
+| Método | Ruta | Auth | Descripción |
+|---|---|---|---|
+| GET | `/` | No | Mensaje de bienvenida |
+| POST | `/login` | No | Devuelve un token de acceso |
+| POST | `/gastos` | Sí | Crea un gasto |
+| GET | `/gastos` | Sí | Lista gastos; filtro opcional `?categoria=comida` |
+| GET | `/gastos/total` | Sí | Total general y total por categoría |
+
+### POST /login
+
+Petición:
+
+```json
+{"usuario": "bosco", "password": "clave-de-prueba"}
+```
+
+Respuesta 200:
+
+```json
+{"access_token": "eyJ...", "token_type": "bearer"}
+```
+
 ### POST /gastos
 
-- Body: {"categoria": str, "importe": float, "fecha": str}
-- Éxito: 201 Created — devuelve el gasto creado, incluyendo el id generado por el servidor
-- Error: 400/422 si categoria, importe o fecha no pasan la validación de Gasto
-- Ejemplo de respuesta (201):
-{
-  "id": "3d4be023-f325-43c7-8f40-0946e06af87f",
-  "categoria": "comida",
-  "importe": 10.5,
-  "fecha": "2026-09-10"
-}
+Petición:
 
+```json
+{"categoria": "comida", "importe": 10.5, "fecha": "2026-09-10"}
+```
+
+Respuesta 201 (el `id` lo genera el servidor):
+
+```json
+{"categoria": "comida", "importe": 10.5, "fecha": "2026-09-10", "id": "3a390560-5ce1-4959-ac13-7d227c098468"}
+```
 
 ### GET /gastos
 
-- Query param opcional: ?categoria=comida
-- Éxito: 200 OK — devuelve una lista de gastos (todos, o filtrados por categoría)
-- Ejemplo de respuesta (200), sin filtro:
-[
-  {"id": "3d4be023-...", "categoria": "comida", "importe": 10.5, "fecha": "2026-09-10"},
-  {"id": "4587ae54-...", "categoria": "ocio", "importe": 20.0, "fecha": "2026-09-14"}
-]
-- Ejemplo de respuesta (200), con ?categoria=comida:
-[
-  {"id": "3d4be023-...", "categoria": "comida", "importe": 10.5, "fecha": "2026-09-10"}
-]
+Respuesta 200: lista de gastos con el mismo formato que arriba. Con `?categoria=comida` devuelve solo los de esa categoría.
 
 ### GET /gastos/total
 
-- Sin parámetros
-- Éxito: 200 OK — devuelve el total general y el desglose por categoría
-- Ejemplo de respuesta (200):
-{
-  "total_general": 66.0,
-  "por_categoria": {"comida": 51.5, "ocio": 14.5}
-}
+Respuesta 200:
+
+```json
+{"total_general": 15.0, "por_categoria": {"comida": 10.0, "ocio": 5.0}}
+```
+
+## Códigos de error
+
+| Código | Cuándo |
+|---|---|
+| 400 | El dato tiene el tipo correcto pero rompe una regla de negocio (categoría numérica, importe negativo, fecha con formato incorrecto). Cuerpo: `{"error": "mensaje"}` |
+| 401 | Falta el token, es inválido o ha caducado, o el login es incorrecto |
+| 422 | El cuerpo no encaja con el esquema (campo ausente o tipo incorrecto, por ejemplo `"importe": "abc"`) |
+
+Reglas de negocio de un gasto: la categoría no puede ser solo números, el importe debe ser mayor o igual que 0 y la fecha debe tener formato `AAAA-MM-DD`.
